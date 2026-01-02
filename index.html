@@ -95,7 +95,7 @@ footer{
     <select id="year"></select>
   </div>
   <div>
-    <input id="habitInput" placeholder="New habit">
+    <input id="habitInput" placeholder="New habit" onkeypress="handleEnter(event)">
     <button onclick="addHabit()">Add</button>
   </div>
 </div>
@@ -165,9 +165,22 @@ function addHabit(){
   save();
 }
 
+function handleEnter(e){
+  if(e.key==="Enter"){
+    addHabit();
+  }
+}
+
 function toggle(h,d){
   habits[h].days[d]=!habits[h].days[d];
   save();
+}
+
+function removeHabit(index){
+  if(confirm("Delete this habit?")){
+    habits.splice(index,1);
+    save();
+  }
 }
 
 function render(){
@@ -177,7 +190,7 @@ function render(){
 
   let head="<tr><th>Habit</th>";
   for(let i=1;i<=days;i++)head+=`<th>${i}</th>`;
-  head+="<th>Total</th></tr>";
+  head+="<th>Total</th><th>❌</th></tr>";
   table.innerHTML+=head;
 
   let totalChecks=0;
@@ -188,7 +201,9 @@ function render(){
     h.days.forEach((v,di)=>{
       row+=`<td><input type="checkbox" ${v?"checked":""} onclick="toggle(${hi},${di})"></td>`;
     });
-    row+=`<td>${total}</td></tr>`;
+    row+=`<td>${total}</td>
+          <td><button onclick="removeHabit(${hi})">❌</button></td>
+          </tr>`;
     table.innerHTML+=row;
   });
 
@@ -201,7 +216,7 @@ function updateSummary(days,totalChecks){
   document.getElementById("sumChecks").innerHTML=`<h3>Total Checkmarks</h3><p>${totalChecks}</p>`;
   let percent=habits.length?Math.round(totalChecks/(habits.length*days)*100):0;
   document.getElementById("sumPercent").innerHTML=`<h3>Completion</h3><p>${percent}%</p>`;
-  let best=habits.sort((a,b)=>b.days.filter(Boolean).length-a.days.filter(Boolean).length)[0];
+  let best=habits.slice().sort((a,b)=>b.days.filter(Boolean).length-a.days.filter(Boolean).length)[0];
   document.getElementById("sumBest").innerHTML=`<h3>Best Habit</h3><p>${best?best.name:"—"}</p>`;
 }
 
